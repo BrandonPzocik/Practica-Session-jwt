@@ -5,11 +5,7 @@ import morgan from "morgan";
 import path from "path";
 
 import { database } from "./db/database.js";
-import {
-  getUsersCrlt,
-  postLogOutCtrl,
-  postUsersCtrl,
-} from "./src/controllers/auth.controllers.js";
+import { authRouter } from "./src/routes/auth.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -41,14 +37,7 @@ app.use(
   })
 );
 
-// Ruta para manejar el inicio de sesión
-app.post("/login", postUsersCtrl);
-
-// Ruta para obtener los datos de la sesión
-app.get("/session", getUsersCrlt);
-
-// Ruta para cerrar la sesión
-app.post("/logout", postLogOutCtrl);
+app.use("/auth", authRouter);
 
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}/`)
