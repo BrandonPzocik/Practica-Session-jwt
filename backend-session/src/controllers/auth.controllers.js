@@ -1,26 +1,34 @@
 //importar conexcion a base de datos
+import { connection } from "../db/database.js";
 
 //ruta LOGIN (iniciar sesion)
 export const postUsersCtrl = async (req, res) => {
   const { username, password } = req.body;
+  // Consulta a la base de datos
+  connection.query(
+    "SELECT * FROM users WHERE username = ? AND password = ?",
+    [username, password],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: "Error en la base de datos" });
+      }
 
-  // Buscar usuario
-  const user = database.user.find(
-    (u) => u.username === username && u.password === password
+      if (results.length > 0) {
+        const user = results[0];
+
+        // Guardar información del usuario en la sesión
+        req.session.userId = user.id;
+        req.session.username = user.username;
+
+        return res.json({
+          message: "Inicio de sesión exitoso",
+          user: { id: user.id, username: user.username },
+        });
+      } else {
+        return res.status(401).json({ message: "Credenciales incorrectas" });
+      }
+    }
   );
-
-  if (user) {
-    // Guardar información del usuario en la sesión
-    req.session.userId = user.id;
-    req.session.username = user.username;
-
-    return res.json({
-      message: "Inicio de sesión exitoso",
-      user: { id: user.id, username: user.username },
-    });
-  } else {
-    return res.status(401).json({ message: "Credenciales incorrectas" });
-  }
 };
 
 //ruta SESSION (obtener los datos de la sesion)

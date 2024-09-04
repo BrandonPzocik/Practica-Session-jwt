@@ -3,7 +3,7 @@ import {
   getUsersCrlt,
   postLogOutCtrl,
   postUsersCtrl,
-} from "./src/controllers/auth.controllers.js";
+} from "../controllers/auth.controllers.js";
 
 const authRouter = Router();
 

@@ -4,12 +4,9 @@ import session from "express-session";
 import morgan from "morgan";
 import path from "path";
 
-import { database } from "./db/database.js";
-import { authRouter } from "./src/routes/auth.routes.js";
-
+import { PORT } from "./src/setting/environment.js";
+import { authRouter } from "../backend-session/src/routes/auth.routes.js";
 const app = express();
-const PORT = process.env.PORT || 4000;
-
 const __dirname = path.resolve();
 
 // Middlewares
