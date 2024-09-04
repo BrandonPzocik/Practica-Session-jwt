@@ -3,6 +3,7 @@ import {
   getUsersCrlt,
   postLogOutCtrl,
   postUsersCtrl,
+  registerUsersCtrl,
 } from "../controllers/auth.controllers.js";
 
 const authRouter = Router();
@@ -15,5 +16,8 @@ authRouter.get("/session", getUsersCrlt);
 
 // Ruta para cerrar la sesión
 authRouter.post("/logout", postLogOutCtrl);
+
+//Ruta para registrarse
+authRouter.post("/register", registerUsersCtrl);
 
 export { authRouter };
