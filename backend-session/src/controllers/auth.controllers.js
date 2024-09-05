@@ -1,11 +1,11 @@
 //importar conexcion a base de datos
-import { connection } from "../db/database.js";
+import { pool } from "../db/database.js";
 
 //ruta LOGIN (iniciar sesion)
 export const postUsersCtrl = async (req, res) => {
   const { username, password } = req.body;
   // Consulta a la base de datos
-  connection.query(
+  pool.query(
     "SELECT * FROM users WHERE username = ? AND password = ?",
     [username, password],
     (err, results) => {
@@ -58,15 +58,13 @@ export const postLogOutCtrl = async (req, res) => {
 };
 
 //ruta REGISTRARSE
+
 export const registerUsersCtrl = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Crear una nueva conexión a la base de datos
-    const connection = await createMyPool();
-
     // Verificar si el usuario ya existe
-    const [rows] = await connection.execute(
+    const [rows] = await pool.execute(
       "SELECT * FROM users WHERE username = ?",
       [username]
     );
@@ -77,21 +75,19 @@ export const registerUsersCtrl = async (req, res) => {
     }
 
     // Insertar el nuevo usuario en la base de datos
-    const [result] = await connection.execute(
+    const [result] = await pool.execute(
       "INSERT INTO users (username, password) VALUES (?, ?)",
       [username, password]
     );
-
-    // Cerrar la conexión
-    await connection.end();
 
     return res.status(201).json({
       message: "Usuario registrado exitosamente",
       user: { id: result.insertId, username },
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error interno del servidor", error: error.message });
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
   }
 };
