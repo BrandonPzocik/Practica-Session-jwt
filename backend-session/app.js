@@ -34,7 +34,7 @@ app.use(
   })
 );
 
-app.use("/auth", authRouter);
+app.use(authRouter);
 
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}/`)

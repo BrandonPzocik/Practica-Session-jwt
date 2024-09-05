@@ -4,33 +4,39 @@ import { pool } from "../db/database.js";
 //ruta LOGIN (iniciar sesion)
 export const postUsersCtrl = async (req, res) => {
   const { username, password } = req.body;
-  // Consulta a la base de datos
-  pool.query(
-    "SELECT * FROM users WHERE username = ? AND password = ?",
-    [username, password],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json({ message: "Error en la base de datos" });
-      }
 
-      if (results.length > 0) {
-        const user = results[0];
+  try {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE username = ? AND password = ?",
+      [username, password]
+    );
+    const rows = result[0]; // O result.rows dependiendo de la estructura.
 
-        // Guardar información del usuario en la sesión
-        req.session.userId = user.id;
-        req.session.username = user.username;
-
-        return res.json({
-          message: "Inicio de sesión exitoso",
-          user: { id: user.id, username: user.username },
-        });
-      } else {
-        return res.status(401).json({ message: "Credenciales incorrectas" });
-      }
+    // Verifica si el usuario existe
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Credenciales incorrectas" });
     }
-  );
-};
 
+    const user = rows[0];
+
+    // Aquí deberías comparar el password con el hash almacenado en la base de datos
+    // Suponiendo que ya tienes la comparación de contraseñas correcta
+    if (password === user.password) {
+      req.session.userId = user.id;
+      req.session.username = user.username;
+
+      return res.json({
+        message: "Inicio de sesión exitoso",
+        user: { id: user.id, username: user.username },
+      });
+    } else {
+      return res.status(401).json({ message: "Credenciales incorrectas" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+};
 //ruta SESSION (obtener los datos de la sesion)
 export const getUsersCrlt = async (req, res) => {
   if (req.session.userId) {
