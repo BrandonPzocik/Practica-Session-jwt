@@ -1,4 +1,6 @@
 import { pool } from "../db/database.js";
+import { generarJwt } from "../helpers/generar-jwt.js";
+
 //importar generador de jwt
 
 //ruta login
@@ -6,25 +8,30 @@ export const loginCtrl = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const user = await pool.query(
-      "SELECT * FROM users WHERE username = ? AND password = ?",
-      [username, password]
-    );
+    // Buscar el usuario por el username
+    const [user] = await pool.query("SELECT * FROM users WHERE username = ?", [
+      username,
+    ]);
 
-    // Validación de usuario
-    if (!user) {
+    // Validar si el usuario existe
+    if (user.length === 0) {
+      return res.status(401).json({ message: "Credenciales incorrectas" });
+    }
+
+    // Comparar contraseñas
+    if (user[0].password !== password) {
       return res.status(401).json({ message: "Credenciales incorrectas" });
     }
 
     // Generar token JWT
-    const token = await generarJwt(user.id);
+    const token = await generarJwt(user[0].id);
 
     // Almacenar el token en la sesión del servidor
     req.session.token = token;
 
     // Almacenar el token en una cookie segura
     res.cookie("authToken", token, {
-      httpOnly: true, // La cookie no es accesible desde JavaScript
+      httpOnly: true,
       secure: false, // Cambiar a true en producción con HTTPS
       maxAge: 3600000, // Expiración en milisegundos (1 hora)
     });
@@ -37,12 +44,12 @@ export const loginCtrl = async (req, res) => {
 };
 //ruta session
 export const sessionCtrl = (req, res) => {
-  console.log(req.user);
   return res.json({
     message: "Acceso permitido a área protegida",
     user: req.user,
   });
 };
+
 //ruta logOut
 export const logOutCtrl = (req, res) => {
   try {

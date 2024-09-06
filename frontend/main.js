@@ -1,5 +1,5 @@
 (async () => {
-  const response = await fetch("http://localhost:4000/session", {
+  const response = await fetch("http://localhost:4000/auth/session", {
     method: "GET",
     credentials: "include", // Importante para enviar las cookies de sesión
   });
@@ -11,13 +11,14 @@
     document.getElementById("user-name").innerText = data.user.username;
   } else {
     // Redirigir al usuario a la página de inicio de sesión
-    window.location.href = "index.html";
+    //window.location.href = "index.html";
+    console.log(await response);
   }
 })();
 
 // Manejar el cierre de sesión
 document.getElementById("logout").addEventListener("click", async () => {
-  const response = await fetch("http://localhost:4000/logout", {
+  const response = await fetch("http://localhost:4000/auth/logout", {
     method: "POST",
     credentials: "include",
   });
