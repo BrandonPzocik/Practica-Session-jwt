@@ -1,8 +1,6 @@
 import { pool } from "../db/database.js";
 import { generarJwt } from "../helpers/generar-jwt.js";
 
-//importar generador de jwt
-
 //ruta login
 export const loginCtrl = async (req, res) => {
   const { username, password } = req.body;
@@ -64,5 +62,39 @@ export const logOutCtrl = (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Error Inesperado" });
+  }
+};
+
+//ruta register
+export const registerUsersCtrl = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Verificar si el usuario ya existe
+    const [rows] = await pool.execute(
+      "SELECT * FROM users WHERE username = ?",
+      [username]
+    );
+    if (rows.length > 0) {
+      return res
+        .status(409)
+        .json({ message: "El nombre de usuario ya está en uso" });
+    }
+
+    // Insertar el nuevo usuario en la base de datos
+    const [result] = await pool.execute(
+      "INSERT INTO users (username, password) VALUES (?, ?)",
+      [username, password]
+    );
+
+    return res.status(201).json({
+      message: "Usuario registrado exitosamente",
+      user: { id: result.insertId, username },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
   }
 };

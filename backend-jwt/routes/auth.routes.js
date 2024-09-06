@@ -5,6 +5,7 @@ import {
   logOutCtrl,
   sessionCtrl,
 } from "../controllers/auth.controllers.js";
+import { registerUsersCtrl } from "../controllers/auth.controllers.js";
 
 const authRouter = Router();
 
@@ -16,5 +17,7 @@ authRouter.get("/session", validarJwt, sessionCtrl);
 
 // Endpoint de cierre de sesión (logout)
 authRouter.post("/logout", logOutCtrl);
+
+authRouter.post("/register", registerUsersCtrl);
 
 export { authRouter };
